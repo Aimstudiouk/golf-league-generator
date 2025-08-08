@@ -25,6 +25,23 @@ function App() {
     setPairs(data.pairs || []);
   };
 
+  const handleDownloadCSV = () => {
+    if (!pairs.length) return;
+
+    let csvContent = "Pair Number,Player 1,Player 2,Player 3 (if any)\n";
+    pairs.forEach((pair, i) => {
+      csvContent += [i + 1, pair[0], pair[1], pair[2] || ""].join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const cleanLeague = leagueName.replace(/\s+/g, "_");
+    const cleanWeek = week.replace(/\s+/g, "_");
+    link.setAttribute("href", URL.createObjectURL(blob));
+    link.setAttribute("download", `${cleanLeague}_${cleanWeek}.csv`);
+    link.click();
+  };
+
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Golf League Generator</h1>
@@ -61,13 +78,20 @@ function App() {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div style={{ marginTop: "1rem" }}>
-        {pairs.map((pair, i) => (
-          <div key={i}>
-            Pair {i + 1}: {pair.join(" + ")}
+      {pairs.length > 0 && (
+        <>
+          <div style={{ marginTop: "1rem" }}>
+            {pairs.map((pair, i) => (
+              <div key={i}>
+                Pair {i + 1}: {pair.join(" + ")}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <button style={{ marginTop: "1rem" }} onClick={handleDownloadCSV}>
+            Download CSV
+          </button>
+        </>
+      )}
     </div>
   );
 }
