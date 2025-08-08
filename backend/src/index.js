@@ -14,18 +14,33 @@ function shuffle(array) {
   return array;
 }
 
+function pairExistsInLastWeek(pair) {
+  const pairSet = new Set(pair);
+  return lastWeekPairs.some(lastPair => {
+    return pairSet.size === lastPair.length && lastPair.every(p => pairSet.has(p));
+  });
+}
+
 function generatePairs(players) {
-  const shuffled = shuffle([...players]);
-  const pairs = [];
+  let attempts = 0;
+  let pairs;
 
-  while (shuffled.length >= 2) {
-    pairs.push([shuffled.pop(), shuffled.pop()]);
-  }
+  do {
+    const shuffled = shuffle([...players]);
+    pairs = [];
 
-  if (shuffled.length === 1) {
-    // Add the last person to the last pair to make a 3-ball
-    pairs[pairs.length - 1].push(shuffled.pop());
-  }
+    while (shuffled.length >= 2) {
+      pairs.push([shuffled.pop(), shuffled.pop()]);
+    }
+
+    if (shuffled.length === 1) {
+      // Add the last person to the last pair to make a 3-ball
+      pairs[pairs.length - 1].push(shuffled.pop());
+    }
+
+    attempts++;
+    if (attempts > 20) break; // fallback if we can't find a new set
+  } while (pairs.some(pair => pairExistsInLastWeek(pair)));
 
   lastWeekPairs = pairs;
   return pairs;
